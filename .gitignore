@@ -1,0 +1,8 @@
+node_modules
+session
+.env
+tmp
+*.webp
+*.mp4
+*.jpg
+*.jpeg
