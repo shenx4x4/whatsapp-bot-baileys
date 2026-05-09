@@ -2,6 +2,7 @@ const { downloadContentFromMessage } = require("@whiskeysockets/baileys");
 const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const { Sticker, createSticker, StickerTypes } = require('wa-sticker-formatter');
 
 module.exports = {
     name: 'sticker',
@@ -22,12 +23,17 @@ module.exports = {
             
             fs.writeFileSync(fileName.replace('.webp', '.jpg'), buffer);
             
-            exec(`ffmpeg -i ${fileName.replace('.webp', '.jpg')} -vcodec libwebp -filter:v "scale='if(gt(iw,ih),512,-1)':'if(gt(ih,iw),512,-1)',fps=15,pad=512:512:(512-iw)/2:(512-ih)/2:color=white@0.0,split[a][b];[a]palettegen=reserve_transparent=on:transparency_color=ffffff[p];[b][p]paletteuse" ${fileName}`, (err) => {
-                if (err) return m.reply('Gagal mengonversi ke stiker.');
-                client.sendMessage(m.chat, { sticker: fs.readFileSync(fileName) }, { quoted: m });
-                fs.unlinkSync(fileName);
-                fs.unlinkSync(fileName.replace('.webp', '.jpg'));
+            const sticker = new Sticker(buffer, {
+                pack: 'kinebot',
+                author: 'own by kine ✧',
+                type: StickerTypes.FULL,
+                categories: ['🤩', '🎉'],
+                id: '12345',
+                quality: 50,
+                background: '#00000000'
             });
+            const stickerBuffer = await sticker.toBuffer();
+            client.sendMessage(m.chat, { sticker: stickerBuffer }, { quoted: m });
         } else if (/video/.test(mime)) {
             if ((quoted.msg || quoted).seconds > 10) return m.reply('Maksimal durasi video adalah 10 detik!');
             const stream = await downloadContentFromMessage(quoted.msg || quoted, 'video');
@@ -41,12 +47,17 @@ module.exports = {
             
             fs.writeFileSync(fileName.replace('.webp', '.mp4'), buffer);
             
-            exec(`ffmpeg -i ${fileName.replace('.webp', '.mp4')} -vcodec libwebp -filter:v "scale='if(gt(iw,ih),512,-1)':'if(gt(ih,iw),512,-1)',fps=15,pad=512:512:(512-iw)/2:(512-ih)/2:color=white@0.0,split[a][b];[a]palettegen=reserve_transparent=on:transparency_color=ffffff[p];[b][p]paletteuse" -loop 0 -preset default -an -vsync 0 ${fileName}`, (err) => {
-                if (err) return m.reply('Gagal mengonversi video ke stiker.');
-                client.sendMessage(m.chat, { sticker: fs.readFileSync(fileName) }, { quoted: m });
-                fs.unlinkSync(fileName);
-                fs.unlinkSync(fileName.replace('.webp', '.mp4'));
+            const sticker = new Sticker(buffer, {
+                pack: 'kinebot',
+                author: 'own by kine ✧',
+                type: StickerTypes.FULL,
+                categories: ['🤩', '🎉'],
+                id: '12345',
+                quality: 50,
+                background: '#00000000'
             });
+            const stickerBuffer = await sticker.toBuffer();
+            client.sendMessage(m.chat, { sticker: stickerBuffer }, { quoted: m });
         } else {
             m.reply('Kirim/reply gambar atau video dengan caption .sticker');
         }

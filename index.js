@@ -27,6 +27,21 @@ const question = (text) => {
 };
 
 async function startBot() {
+    console.log(chalk.cyan(`
+    ╔═══════════════════════════════════════════╗
+    ║                                           ║
+    ║   ██╗  ██╗██╗███╗   ██╗███████╗██████╗    ║
+    ║   ██║ ██╔╝██║████╗  ██║██╔════╝██╔══██╗   ║
+    ║   █████╔╝ ██║██╔██╗ ██║█████╗  ██████╔╝   ║
+    ║   ██╔═██╗ ██║██║╚██╗██║██╔══╝  ██╔══██╗   ║
+    ║   ██║  ██╗██║██║ ╚████║███████╗██████╔╝   ║
+    ║   ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝╚═════╝    ║
+    ║                                           ║
+    ║         WELCOME TO KINEBOT - 2025         ║
+    ║       RIMURU TEMPEST EDITION BANNER       ║
+    ╚═══════════════════════════════════════════╝
+    `));
+
     const { state, saveCreds } = await useMultiFileAuthState(`./${config.sessionName}`);
     const { version } = await fetchLatestBaileysVersion();
 
