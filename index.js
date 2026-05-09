@@ -51,7 +51,7 @@ async function startBot() {
         setTimeout(async () => {
             let code = await client.requestPairingCode(phoneNumber);
             code = code?.match(/.{1,4}/g)?.join("-") || code;
-            console.log(chalk.black(chalk.bgGreen(" Pairing Code Anda: ")), chalk.black(chalk.white(code)));
+            console.log(chalk.black.bgGreen(" Pairing Code Anda: ") + " " + chalk.black.white(code));
         }, 3000);
     }
 

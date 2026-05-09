@@ -20,7 +20,7 @@ module.exports = async (client, m, chatUpdate, store) => {
 
         // Logging
         if (isCmd) {
-            console.log(chalk.black(chalk.bgWhite(' CMD ')), chalk.black(chalk.bgGreen(new Date().toLocaleString())), chalk.black(chalk.bgBlue(command)), 'from', chalk.black(chalk.bgYellow(sender)));
+            console.log(chalk.black.bgWhite(' CMD ') + " " + chalk.black.bgGreen(new Date().toLocaleString()) + " " + chalk.black.bgBlue(command) + " from " + chalk.black.bgYellow(sender));
         }
 
         // Load Commands from /commands folder
