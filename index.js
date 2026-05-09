@@ -62,11 +62,17 @@ async function startBot() {
             if (reason === DisconnectReason.loggedOut) {
                 console.log(chalk.red("Koneksi Terputus, Silahkan Hapus Session dan Scan Ulang"));
                 process.exit();
+            } else if (reason === DisconnectReason.restartRequired) {
+                startBot();
+            } else if (reason === DisconnectReason.timedOut) {
+                startBot();
             } else {
+                // Untuk error lain, coba hubungkan kembali kecuali jika memang sengaja ditutup
+                console.log(chalk.yellow(`Koneksi ditutup karena ${reason}, mencoba menghubungkan kembali...`));
                 startBot();
             }
         } else if (connection === "open") {
-            console.log(chalk.green("Bot Berhasil Terhubung!"));
+            console.log(chalk.green("\nBot Berhasil Terhubung!"));
         }
     });
 
