@@ -12,6 +12,7 @@ const { Boom } = require("@hapi/boom");
 const fs = require("fs");
 const chalk = require("chalk");
 const readline = require("readline");
+const terminalImage = require('terminal-image');
 const config = require("./config");
 const { smsg } = require("./lib/myfunc");
 
@@ -27,20 +28,14 @@ const question = (text) => {
 };
 
 async function startBot() {
-    console.log(chalk.cyan(`
-    ╔═══════════════════════════════════════════╗
-    ║                                           ║
-    ║   ██╗  ██╗██╗███╗   ██╗███████╗██████╗    ║
-    ║   ██║ ██╔╝██║████╗  ██║██╔════╝██╔══██╗   ║
-    ║   █████╔╝ ██║██╔██╗ ██║█████╗  ██████╔╝   ║
-    ║   ██╔═██╗ ██║██║╚██╗██║██╔══╝  ██╔══██╗   ║
-    ║   ██║  ██╗██║██║ ╚████║███████╗██████╔╝   ║
-    ║   ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝╚═════╝    ║
-    ║                                           ║
-    ║         WELCOME TO KINEBOT - 2025         ║
-    ║       RIMURU TEMPEST EDITION BANNER       ║
-    ╚═══════════════════════════════════════════╝
-    `));
+    try {
+        const banner = await terminalImage.file('./rimuru.jpg', { width: '50%' });
+        console.log(banner);
+        console.log(chalk.cyan.bold("\n          WELCOME TO KINEBOT - 2025          "));
+        console.log(chalk.blue.italic("        RIMURU TEMPEST EDITION BANNER        \n"));
+    } catch (e) {
+        console.log(chalk.cyan("Welcome to kinebot - 2025"));
+    }
 
     const { state, saveCreds } = await useMultiFileAuthState(`./${config.sessionName}`);
     const { version } = await fetchLatestBaileysVersion();
