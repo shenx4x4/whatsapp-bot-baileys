@@ -9,7 +9,7 @@ module.exports = {
     aliases: ['s'],
     async execute(client, m) {
         const quoted = m.quoted ? m.quoted : m;
-        const mime = (quoted.msg || quoted).mimetype || '';
+        const mime = (quoted.msg || quoted).mimetype || quoted.mimetype || '';
         const tmpDir = path.join(__dirname, '../tmp');
         if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
 

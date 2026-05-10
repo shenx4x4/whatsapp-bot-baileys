@@ -12,6 +12,7 @@ module.exports = {
 *STICKER MENU*
 .sticker - Gambar ke Sticker
 .s - Alias sticker
+.brat <teks> - Buat stiker brat
 
 *DOWNLOADER*
 .ytmp3 <url> - Download YouTube Audio
