@@ -2,7 +2,7 @@ const { downloadContentFromMessage } = require("@whiskeysockets/baileys");
 const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
-const { Sticker, createSticker, StickerTypes } = require('wa-sticker-formatter');
+const { addMetadata } = require('../lib/exif');
 
 module.exports = {
     name: 'sticker',
@@ -10,7 +10,9 @@ module.exports = {
     async execute(client, m) {
         const quoted = m.quoted ? m.quoted : m;
         const mime = (quoted.msg || quoted).mimetype || '';
-        
+        const tmpDir = path.join(__dirname, '../tmp');
+        if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
+
         if (/image/.test(mime)) {
             const stream = await downloadContentFromMessage(quoted.msg || quoted, 'image');
             let buffer = Buffer.from([]);
@@ -18,22 +20,19 @@ module.exports = {
                 buffer = Buffer.concat([buffer, chunk]);
             }
             
-            const fileName = path.join(__dirname, `../tmp/${Date.now()}.webp`);
-            if (!fs.existsSync(path.join(__dirname, '../tmp'))) fs.mkdirSync(path.join(__dirname, '../tmp'));
+            const inputPath = path.join(tmpDir, `${Date.now()}.jpg`);
+            const outputPath = path.join(tmpDir, `${Date.now()}.webp`);
+            fs.writeFileSync(inputPath, buffer);
             
-            fs.writeFileSync(fileName.replace('.webp', '.jpg'), buffer);
-            
-            const sticker = new Sticker(buffer, {
-                pack: 'kinebot',
-                author: 'own by kine ✧',
-                type: StickerTypes.FULL,
-                categories: ['🤩', '🎉'],
-                id: '12345',
-                quality: 50,
-                background: '#00000000'
+            exec(`ffmpeg -i ${inputPath} -vcodec libwebp -filter:v "scale='if(gt(iw,ih),512,-1)':'if(gt(ih,iw),512,-1)',fps=15,pad=512:512:(512-iw)/2:(512-ih)/2:color=white@0.0,split[a][b];[a]palettegen=reserve_transparent=on:transparency_color=ffffff[p];[b][p]paletteuse" ${outputPath}`, async (err) => {
+                if (err) return m.reply('Gagal mengonversi ke stiker.');
+                
+                const stickerBuffer = await addMetadata(fs.readFileSync(outputPath), 'kinebot', 'own by kine ✧');
+                await client.sendMessage(m.chat, { sticker: stickerBuffer }, { quoted: m });
+                
+                fs.unlinkSync(inputPath);
+                fs.unlinkSync(outputPath);
             });
-            const stickerBuffer = await sticker.toBuffer();
-            client.sendMessage(m.chat, { sticker: stickerBuffer }, { quoted: m });
         } else if (/video/.test(mime)) {
             if ((quoted.msg || quoted).seconds > 10) return m.reply('Maksimal durasi video adalah 10 detik!');
             const stream = await downloadContentFromMessage(quoted.msg || quoted, 'video');
@@ -42,22 +41,19 @@ module.exports = {
                 buffer = Buffer.concat([buffer, chunk]);
             }
             
-            const fileName = path.join(__dirname, `../tmp/${Date.now()}.webp`);
-            if (!fs.existsSync(path.join(__dirname, '../tmp'))) fs.mkdirSync(path.join(__dirname, '../tmp'));
+            const inputPath = path.join(tmpDir, `${Date.now()}.mp4`);
+            const outputPath = path.join(tmpDir, `${Date.now()}.webp`);
+            fs.writeFileSync(inputPath, buffer);
             
-            fs.writeFileSync(fileName.replace('.webp', '.mp4'), buffer);
-            
-            const sticker = new Sticker(buffer, {
-                pack: 'kinebot',
-                author: 'own by kine ✧',
-                type: StickerTypes.FULL,
-                categories: ['🤩', '🎉'],
-                id: '12345',
-                quality: 50,
-                background: '#00000000'
+            exec(`ffmpeg -i ${inputPath} -vcodec libwebp -filter:v "scale='if(gt(iw,ih),512,-1)':'if(gt(ih,iw),512,-1)',fps=15,pad=512:512:(512-iw)/2:(512-ih)/2:color=white@0.0,split[a][b];[a]palettegen=reserve_transparent=on:transparency_color=ffffff[p];[b][p]paletteuse" -loop 0 -preset default -an -vsync 0 ${outputPath}`, async (err) => {
+                if (err) return m.reply('Gagal mengonversi video ke stiker.');
+                
+                const stickerBuffer = await addMetadata(fs.readFileSync(outputPath), 'kinebot', 'own by kine ✧');
+                await client.sendMessage(m.chat, { sticker: stickerBuffer }, { quoted: m });
+                
+                fs.unlinkSync(inputPath);
+                fs.unlinkSync(outputPath);
             });
-            const stickerBuffer = await sticker.toBuffer();
-            client.sendMessage(m.chat, { sticker: stickerBuffer }, { quoted: m });
         } else {
             m.reply('Kirim/reply gambar atau video dengan caption .sticker');
         }
